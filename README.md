@@ -1,66 +1,456 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Solar System Mining - Laravel Project
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This repository contains a Laravel application for a Solar System Mining project. The development environment is containerized using Docker to ensure consistency across different development machines and streamline the deployment process.
 
-## About Laravel
+## Table of Contents
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Development Setup](#development-setup)
+- [Docker Environment](#docker-environment)
+- [Common Commands](#common-commands)
+- [Adding Dependencies](#adding-dependencies)
+- [Development Tools](#development-tools)
+- [Running Tests](#running-tests)
+- [Code Quality Tools](#code-quality-tools)
+- [CI/CD Pipeline](#cicd-pipeline)
+- [Production Deployment](#production-deployment)
+- [Environment Variables](#environment-variables)
+- [Troubleshooting](#troubleshooting)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Prerequisites
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Before you begin, ensure you have the following tools installed on your local machine:
 
-## Learning Laravel
+- Docker and Docker Compose
+- Git
+- Make (optional, but recommended for using the Makefile commands)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Quick Start
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+To bootstrap the entire project with a single command:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# Clone the repository
+git clone https://your-repository-url.git
+cd solar-system-mining
 
-## Laravel Sponsors
+# Copy environment file
+cp .env.example .env
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# Bootstrap the entire project (starts Docker, installs dependencies, sets up database)
+make bootstrap
+```
 
-### Premium Partners
+This command will:
+1. Start all Docker containers
+2. Install PHP dependencies
+3. Generate application key
+4. Run database migrations
+5. Install development tools (Laravel Pint, PHPStan, etc.)
+6. Install frontend dependencies
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Development Setup
 
-## Contributing
+If you prefer a step-by-step approach:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Clone the repository:
+   ```bash
+   git clone https://your-repository-url.git
+   cd solar-system-mining
+   ```
 
-## Code of Conduct
+2. Create environment file:
+   ```bash
+   cp .env.example .env
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+3. Build and start the Docker containers:
+   ```bash
+   make up
+   # or without Make
+   docker-compose up -d
+   ```
 
-## Security Vulnerabilities
+4. Install PHP dependencies:
+   ```bash
+   make composer@install
+   # or without Make
+   docker-compose exec app composer install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. Generate application key:
+   ```bash
+   make artisan@key
+   # or without Make
+   docker-compose exec app php artisan key:generate
+   ```
+
+6. Run database migrations:
+   ```bash
+   make artisan@migrate
+   # or without Make
+   docker-compose exec app php artisan migrate
+   ```
+
+7. Install development tools:
+   ```bash
+   make dev@tools
+   ```
+
+8. Initialize configuration files for dev tools:
+   ```bash
+   make dev@init
+   ```
+
+9. Install frontend dependencies (if needed):
+   ```bash
+   make npm@install
+   # or without Make
+   docker-compose exec app npm install
+   ```
+
+Your application should now be running at http://localhost (or the port specified in your .env file).
+
+## Docker Environment
+
+The Docker environment includes the following services:
+
+- **app**: PHP 8.3 with Laravel application
+- **nginx**: Web server
+- **postgres**: PostgreSQL database
+- **redis**: Redis server for caching and queues
+- **adminer**: Database management tool
+- **kafka**: Kafka message broker
+- **zookeeper**: Required for Kafka
+- **kafka-ui**: UI for Kafka management
+- **mailhog**: For email testing (optional, starts with profile)
+- **queue**: For queue workers (optional, starts with profile)
+- **node**: For dedicated npm tasks (optional, starts with profile)
+
+### Service Access
+
+- **Web application**: http://localhost (or custom port from .env)
+- **Database admin**: http://localhost:8080 (or custom port from .env)
+- **Kafka UI**: http://localhost:8081 (or custom port from .env)
+- **MailHog**: http://localhost:8025 (when started with profile)
+
+## Common Commands
+
+The Makefile provides shortcuts for common tasks:
+
+### Docker Management
+
+```bash
+# Start the containers
+make up
+
+# Stop the containers
+make down
+
+# Restart the containers
+make restart
+
+# View logs
+make logs
+# For a specific service
+make logs s=app
+```
+
+### Laravel Artisan Commands
+
+```bash
+# Run any Artisan command
+make artisan@command args="--option1 --option2"
+
+# Run migrations
+make artisan@migrate
+
+# Fresh migrations
+make artisan@fresh
+
+# Generate controller
+make artisan@make t=controller n=UserController
+
+# List routes
+make artisan@route
+
+# Clear caches
+make artisan@clear
+
+# Enter Tinker
+make artisan@tinker
+```
+
+### Composer Commands
+
+```bash
+# Install dependencies
+make composer@install
+
+# Update dependencies
+make composer@update
+
+# Add a package
+make composer@require p=vendor/package-name
+
+# Add a dev package
+make composer@require-dev p=vendor/package-name
+```
+
+### NPM Commands
+
+```bash
+# Install dependencies
+make npm@install
+
+# Run development build
+make npm@dev
+
+# Run production build
+make npm@build
+
+# Watch for changes
+make npm@watch
+```
+
+### Database Access
+
+```bash
+# Access PostgreSQL shell
+make db-shell
+
+# Access Redis shell
+make redis-shell
+```
+
+## Adding Dependencies
+
+### PHP Dependencies
+
+```bash
+# Add a production dependency
+make composer@require p=package-name
+
+# Add a development dependency
+make composer@require-dev p=package-name
+```
+
+### JavaScript Dependencies
+
+```bash
+# Add a production dependency
+make npm@install
+docker-compose exec app npm install package-name --save
+
+# Add a development dependency
+make npm@install
+docker-compose exec app npm install package-name --save-dev
+```
+
+## Development Tools
+
+The project includes several development tools installed locally in the project's `vendor/bin` directory:
+
+- **Laravel Pint**: PHP code style fixer
+- **PHPStan**: Static analysis tool
+- **Rector**: Automated code refactoring tool
+- **PHP_CodeSniffer**: Detects violations of coding standards
+- **PHP-CS-Fixer**: Fixes PHP coding standards issues
+
+Install all development tools:
+
+```bash
+make dev@tools
+```
+
+Initialize configuration files for these tools:
+
+```bash
+make dev@init
+```
+
+## Running Tests
+
+```bash
+# Run all tests
+make code@test
+
+# Run specific test
+make code@test args="--filter=TestClassName"
+
+# Run tests with coverage
+make code@coverage
+```
+
+## Code Quality Tools
+
+The project includes several code quality tools that can be run through the Makefile:
+
+```bash
+# Check code style with Laravel Pint
+make code@pint
+
+# Fix code style with Laravel Pint
+make code@pint-fix
+
+# Static analysis with PHPStan
+make code@stan
+
+# Code refactoring suggestions with Rector
+make code@rector-dry
+
+# Apply Rector suggestions
+make code@rector
+
+# Run all code quality checks
+make code@check
+```
+
+## CI/CD Pipeline
+
+The project includes configuration for a CI/CD pipeline that:
+
+1. Runs all tests and code quality checks
+2. Builds Docker images for production
+3. Deploys to the appropriate environment based on the branch
+
+See the CI/CD configuration in the `.github/workflows` or `.gitlab-ci.yml` file for details.
+
+## Production Deployment
+
+### Preparing for Production
+
+1. Build production Docker image:
+   ```bash
+   docker build -t solar-system-mining:production --target production .
+   ```
+
+2. Configure production environment variables:
+   ```bash
+   # Ensure these are set for production
+   APP_ENV=production
+   APP_DEBUG=false
+   APP_USER=1000:1000  # Run as non-root user
+   FIX_PERMISSIONS=true
+   ```
+
+3. Optimize the application:
+   ```bash
+   docker-compose exec app php artisan optimize
+   docker-compose exec app php artisan route:cache
+   docker-compose exec app php artisan view:cache
+   docker-compose exec app php artisan config:cache
+   ```
+
+### Deployment Options
+
+#### Using Docker Compose
+
+For simple deployments, you can use Docker Compose in production:
+
+```bash
+# Start production environment
+APP_ENV=production APP_USER=1000:1000 docker-compose up -d
+```
+
+#### Using Kubernetes
+
+For more robust deployments, consider using Kubernetes:
+
+1. Ensure your Kubernetes cluster is configured
+2. Apply Kubernetes configuration:
+   ```bash
+   kubectl apply -f kubernetes/
+   ```
+
+#### Using Docker Swarm
+
+For mid-sized deployments, Docker Swarm can be a good option:
+
+```bash
+# Initialize swarm if not already done
+docker swarm init
+
+# Deploy stack
+docker stack deploy -c docker-compose.prod.yml solar-system-mining
+```
+
+## Environment Variables
+
+Key environment variables to configure:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NGINX_PORT` | Port for web access | 80 |
+| `DB_CONNECTION` | Database driver | pgsql |
+| `DB_HOST` | Database hostname | postgres |
+| `DB_PORT` | Database port | 5432 |
+| `DB_DATABASE` | Database name | laravel |
+| `DB_USERNAME` | Database username | postgres |
+| `DB_PASSWORD` | Database password | secret |
+| `APP_USER` | User to run containers | root (dev), 1000:1000 (prod) |
+| `FIX_PERMISSIONS` | Run permission fixes | false (dev), true (prod) |
+
+See `.env.example` for a complete list.
+
+## Troubleshooting
+
+### Permission Issues
+
+If you encounter permission issues with storage or cache directories:
+
+```bash
+# Enable permission fixing
+FIX_PERMISSIONS=true make restart
+```
+
+### Database Connection Issues
+
+If unable to connect to the database:
+
+1. Check if the database container is running:
+   ```bash
+   docker-compose ps postgres
+   ```
+
+2. Verify connection details in `.env`
+
+3. Try connecting with Adminer at http://localhost:8080
+
+### Container Build Issues
+
+If having issues with container builds:
+
+```bash
+# Build the image separately first
+docker build -t solar-system-mining/app:dev -f Dockerfile --target development .
+
+# Then start the services
+docker-compose up -d
+```
+
+### PHP Extension or Library Problems
+
+If you encounter issues with PHP extensions or libraries:
+
+```bash
+# Access the container
+make bash
+
+# Check PHP extensions
+php -m
+
+# Check PHP version and settings
+php -i
+```
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+[License information here]
+
+## Contributing
+
+[Contribution guidelines here]
