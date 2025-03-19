@@ -17,32 +17,28 @@ services:
             - redis
             - kafka
         environment:
-            - APP_ENV=${APP_ENV:-local}
+            - APP_ENV=${APP_ENV}
             - APP_KEY=${APP_KEY}
-            - APP_DEBUG=${APP_DEBUG:-true}
-            - APP_URL=${APP_URL:-http://localhost}
-            - DB_CONNECTION=${DB_CONNECTION:-pgsql}
-            - DB_HOST=${DB_HOST:-postgres}
-            - DB_PORT=${DB_PORT:-5432}
-            - DB_DATABASE=${DB_DATABASE:-laravel}
-            - DB_USERNAME=${DB_USERNAME:-postgres}
-            - DB_PASSWORD=${DB_PASSWORD:-secret}
-            - REDIS_HOST=${REDIS_HOST:-redis}
-            - REDIS_PORT=${REDIS_PORT:-6379}
-            - REDIS_PASSWORD=${REDIS_PASSWORD:-null}
-            - MAIL_MAILER=${MAIL_MAILER:-log}
-            - MAIL_HOST=${MAIL_HOST:-mailhog}
-            - MAIL_PORT=${MAIL_PORT:-1025}
-            - MAIL_USERNAME=${MAIL_USERNAME:-null}
-            - MAIL_PASSWORD=${MAIL_PASSWORD:-null}
-            - SENTRY_LARAVEL_DSN=${SENTRY_LARAVEL_DSN:-null}
-            - KAFKA_BROKER=${KAFKA_HOST:-kafka}:${KAFKA_PORT:-9092}
-            - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
-            - PHP_IDE_CONFIG=serverName=docker
-            - XDEBUG_MODE=${XDEBUG_MODE:-develop,debug}
-            - FIX_PERMISSIONS=${FIX_PERMISSIONS:-false}
+            - APP_DEBUG=${APP_DEBUG}
+            - APP_URL=${APP_URL}
+            - DB_CONNECTION=${DB_CONNECTION}
+            - DB_HOST=${DB_HOST}
+            - DB_PORT=${DB_PORT}
+            - DB_DATABASE=${DB_DATABASE}
+            - DB_USERNAME=${DB_USERNAME}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - REDIS_HOST=${REDIS_HOST}
+            - REDIS_PORT=${REDIS_PORT}
+            - REDIS_PASSWORD=${REDIS_PASSWORD}
+            - MAIL_MAILER=${MAIL_MAILER}
+            - MAIL_HOST=${MAIL_HOST}
+            - MAIL_PORT=${MAIL_PORT}
+            - KAFKA_BROKER=${KAFKA_BROKER}
+            - XDEBUG_MODE=${XDEBUG_MODE}
+            - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+            - SENTRY_LARAVEL_DSN=${SENTRY_DSN}
         healthcheck:
-            test: ["CMD", "php", "-v"]
+            test: ["CMD", "php", "artisan", "inspire"]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -130,9 +126,9 @@ services:
 
     # Conditionally use Adminer or phpMyAdmin based on DB_ADMIN var
     adminer:
-        image: ${DB_ADMIN:-adminer}:latest
+        image: adminer:latest
         container_name: solar-system-mining-db-admin
-        platform: ${DB_ADMIN_PLATFORM:-linux/amd64}
+        platform: ${DB_ADMIN_PLATFORM}
         ports:
             - "${PMA_PORT:-8080}:8080"
         environment:
