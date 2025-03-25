@@ -37,8 +37,9 @@ services:
             - XDEBUG_MODE=${XDEBUG_MODE}
             - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
             - SENTRY_LARAVEL_DSN=${SENTRY_DSN}
+        command: php-fpm
         healthcheck:
-            test: ["CMD", "php", "artisan", "inspire"]
+            test: ["CMD", "php", "-v"]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -124,9 +125,9 @@ services:
             timeout: 5s
             retries: 3
 
-    # Conditionally use Adminer or phpMyAdmin based on DB_ADMIN var
-    adminer:
-        image: adminer:latest
+            # Conditionally use Adminer or phpMyAdmin based on DB_ADMIN var
+        adminer:
+            image: adminer:latest
         container_name: solar-system-mining-db-admin
         platform: ${DB_ADMIN_PLATFORM}
         ports:
@@ -138,15 +139,15 @@ services:
         depends_on:
             - postgres
 
-    mailhog:
-        image: mailhog/mailhog:latest
+        mailhog:
+            image: mailhog/mailhog:latest
         container_name: solar-system-mining-mailhog
         ports:
             - "${MAILHOG_PORT:-8025}:8025"
         profiles: ["mailhog"]
 
-    zookeeper:
-        image: confluentinc/cp-zookeeper:7.4.0
+        zookeeper:
+            image: confluentinc/cp-zookeeper:7.4.0
         container_name: solar-system-mining-zookeeper
         ports:
             - "${ZOOKEEPER_PORT:-2181}:2181"
@@ -162,8 +163,8 @@ services:
             timeout: 5s
             retries: 3
 
-    kafka:
-        image: confluentinc/cp-kafka:7.4.0
+        kafka:
+            image: confluentinc/cp-kafka:7.4.0
         container_name: solar-system-mining-kafka
         depends_on:
             - zookeeper
@@ -185,8 +186,8 @@ services:
             timeout: 5s
             retries: 3
 
-    kafka-ui:
-        image: provectuslabs/kafka-ui:latest
+        kafka-ui:
+            image: provectuslabs/kafka-ui:latest
         container_name: solar-system-mining-kafka-ui
         ports:
             - "${KAFKA_UI_PORT:-8081}:8080"
@@ -197,10 +198,10 @@ services:
         depends_on:
             - kafka
 
-volumes:
-    app_data:
-    postgres_data:
-    redis_data:
-    zookeeper_data:
-    zookeeper_log:
-    kafka_data:
+        volumes:
+            app_data:
+                postgres_data:
+                    redis_data:
+                        zookeeper_data:
+                            zookeeper_log:
+                                kafka_data:
