@@ -1,17 +1,20 @@
-# solar system mining docker compose file
+# solar system mining - docker compose file
 
 services:
     app:
         build:
             context: .
             dockerfile: Dockerfile
+            args:
+                - USER_ID=${UID:-1000}
+                - GROUP_ID=${GID:-1000}
         image: solar-system-mining/app:dev
         container_name: solar-system-mining-app
         volumes:
             - .:/var/www/html:cached
             - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
             - ./docker/php/xdebug.log:/var/log/xdebug.log
-        user: "${APP_USER:-root}"
+        user: "${UID:-1000}:${GID:-1000}"
         depends_on:
             - postgres
             - redis
@@ -37,9 +40,10 @@ services:
             - XDEBUG_MODE=${XDEBUG_MODE}
             - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
             - SENTRY_LARAVEL_DSN=${SENTRY_DSN}
+            - GIT_CONFIG_EXTRA="[safe]\n  directory = /var/www/html"
         command: php-fpm
         healthcheck:
-            test: ["CMD", "php", "-v"]
+            test: [ "CMD", "php", "-v" ]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -54,9 +58,9 @@ services:
         working_dir: /var/www/html
         volumes:
             - .:/var/www/html:cached
-        entrypoint: ["npm"]
-        command: ["--help"]
-        profiles: ["node"]
+        entrypoint: [ "npm" ]
+        command: [ "--help" ]
+        profiles: [ "node" ]
 
     queue:
         build:
@@ -76,7 +80,7 @@ services:
             - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
         command: php artisan queue:work --tries=3 --backoff=3
         restart: unless-stopped
-        profiles: ["queue"]
+        profiles: [ "queue" ]
 
     nginx:
         image: nginx:alpine
@@ -89,7 +93,7 @@ services:
         depends_on:
             - app
         healthcheck:
-            test: ["CMD", "wget", "-qO-", "http://localhost"]
+            test: [ "CMD", "wget", "-qO-", "http://localhost" ]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -106,7 +110,7 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql/data
         healthcheck:
-            test: ["CMD", "pg_isready", "-U", "${DB_USERNAME:-postgres}"]
+            test: [ "CMD", "pg_isready", "-U", "${DB_USERNAME:-postgres}" ]
             interval: 10s
             timeout: 5s
             retries: 3
@@ -120,14 +124,13 @@ services:
         volumes:
             - redis_data:/data
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: [ "CMD", "redis-cli", "ping" ]
             interval: 10s
             timeout: 5s
             retries: 3
 
-            # Conditionally use Adminer or phpMyAdmin based on DB_ADMIN var
-        adminer:
-            image: adminer:latest
+    adminer:
+        image: adminer:latest
         container_name: solar-system-mining-db-admin
         platform: ${DB_ADMIN_PLATFORM}
         ports:
@@ -139,15 +142,15 @@ services:
         depends_on:
             - postgres
 
-        mailhog:
-            image: mailhog/mailhog:latest
+    mailhog:
+        image: mailhog/mailhog:latest
         container_name: solar-system-mining-mailhog
         ports:
             - "${MAILHOG_PORT:-8025}:8025"
-        profiles: ["mailhog"]
+        profiles: [ "mailhog" ]
 
-        zookeeper:
-            image: confluentinc/cp-zookeeper:7.4.0
+    zookeeper:
+        image: confluentinc/cp-zookeeper:7.4.0
         container_name: solar-system-mining-zookeeper
         ports:
             - "${ZOOKEEPER_PORT:-2181}:2181"
@@ -158,13 +161,13 @@ services:
             - zookeeper_data:/var/lib/zookeeper/data
             - zookeeper_log:/var/lib/zookeeper/log
         healthcheck:
-            test: ["CMD", "nc", "-z", "localhost", "2181"]
+            test: [ "CMD", "nc", "-z", "localhost", "2181" ]
             interval: 10s
             timeout: 5s
             retries: 3
 
-        kafka:
-            image: confluentinc/cp-kafka:7.4.0
+    kafka:
+        image: confluentinc/cp-kafka:7.4.0
         container_name: solar-system-mining-kafka
         depends_on:
             - zookeeper
@@ -181,13 +184,13 @@ services:
         volumes:
             - kafka_data:/var/lib/kafka/data
         healthcheck:
-            test: ["CMD", "nc", "-z", "localhost", "9092"]
+            test: [ "CMD", "nc", "-z", "localhost", "9092" ]
             interval: 10s
             timeout: 5s
             retries: 3
 
-        kafka-ui:
-            image: provectuslabs/kafka-ui:latest
+    kafka-ui:
+        image: provectuslabs/kafka-ui:latest
         container_name: solar-system-mining-kafka-ui
         ports:
             - "${KAFKA_UI_PORT:-8081}:8080"
@@ -198,10 +201,12 @@ services:
         depends_on:
             - kafka
 
-        volumes:
-            app_data:
-                postgres_data:
-                    redis_data:
-                        zookeeper_data:
-                            zookeeper_log:
-                                kafka_data:
+volumes:
+    app_data:
+    postgres_data:
+    redis_data:
+    zookeeper_data:
+    zookeeper_log:
+    kafka_data:
+
+
