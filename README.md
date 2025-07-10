@@ -1,456 +1,385 @@
-# Solar System Mining - Laravel Project
+# Solar System Mining
 
-This repository contains a Laravel application for a Solar System Mining project. The development environment is containerized using Docker to ensure consistency across different development machines and streamline the deployment process.
+A modern Laravel application for managing mining operations in the solar system, using a microservices architecture with Docker.
 
-## Table of Contents
+## 🚀 Technology Stack
 
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [Development Setup](#development-setup)
-- [Docker Environment](#docker-environment)
-- [Common Commands](#common-commands)
-- [Adding Dependencies](#adding-dependencies)
-- [Development Tools](#development-tools)
-- [Running Tests](#running-tests)
-- [Code Quality Tools](#code-quality-tools)
-- [CI/CD Pipeline](#cicd-pipeline)
-- [Production Deployment](#production-deployment)
-- [Environment Variables](#environment-variables)
-- [Troubleshooting](#troubleshooting)
+- **Backend**: Laravel 11 with PHP 8.2+
+- **Frontend**: Blade Templates + Livewire 3.6 + Alpine.js + Tailwind CSS
+- **Database**: PostgreSQL 15
+- **Cache & Sessions**: Redis
+- **Message Broker**: Apache Kafka with Zookeeper
+- **Assets**: Vite for compilation
+- **Authentication**: Laravel Breeze
+- **Containerization**: Docker & Docker Compose
 
-## Prerequisites
+## 📋 Prerequisites
 
-Before you begin, ensure you have the following tools installed on your local machine:
+- **Docker**: Version 20.10+ ([Installation](https://docs.docker.com/get-docker/))
+- **Docker Compose**: Version 2.0+ (included with Docker Desktop)
+- **Git**: To clone the repository
+- **Make**: Optional, to use Makefile shortcuts
 
-- Docker and Docker Compose
-- Git
-- Make (optional, but recommended for using the Makefile commands)
+### Multi-Platform Support
+✅ **Linux** (AMD64/ARM64)  
+✅ **macOS** (Intel/Apple Silicon)  
+✅ **Windows** (WSL2 recommended)
 
-## Quick Start
+## 🛠️ Installation
 
-To bootstrap the entire project with a single command:
-
+### 1. Clone the Repository
 ```bash
-# Clone the repository
-git clone https://your-repository-url.git
+git clone <repository-url>
 cd solar-system-mining
+```
 
-# Copy environment file
+### 2. Environment Configuration
+
+#### Automatic Variable Configuration (Recommended)
+```bash
+# Copy the example file
 cp .env.example .env
 
-# Bootstrap the entire project (starts Docker, installs dependencies, sets up database)
+# Configure automatically based on your platform
+# Linux/WSL2
+export UID=$(id -u) GID=$(id -g) DOCKER_PLATFORM="" VOLUME_OPTIONS=""
+
+# macOS
+export UID=1000 GID=1000 DOCKER_PLATFORM="" VOLUME_OPTIONS="cached"
+
+# Windows (PowerShell)
+$env:UID="1000"; $env:GID="1000"; $env:DOCKER_PLATFORM=""; $env:VOLUME_OPTIONS=""
+```
+
+#### Manual .env Configuration
+Edit the `.env` file according to your platform:
+
+```bash
+# Multi-Platform Support
+# Leave empty for auto-detection or force: linux/amd64, linux/arm64
+DOCKER_PLATFORM=
+
+# Volume performance (macOS only)
+# cached for macOS, empty for Linux/Windows
+VOLUME_OPTIONS=
+
+# User IDs (1000:1000 by default, $(id -u):$(id -g) on Linux)
+UID=1000
+GID=1000
+
+# External ports (modifiable if conflicts)
+NGINX_PORT=8082
+DB_PORT_EXTERNAL=5433
+REDIS_PORT_EXTERNAL=6380
+KAFKA_PORT_EXTERNAL=9093
+PMA_PORT=8080
+KAFKA_UI_PORT=8085
+```
+
+### 3. Bootstrap Setup (First Installation)
+```bash
+# Option 1: With Make (recommended)
 make bootstrap
+
+# Option 2: Manual
+docker-compose build
+docker-compose up -d
+docker-compose exec app composer install
+docker-compose exec app php artisan key:generate
+docker-compose exec app php artisan migrate
+docker-compose exec app npm install
+docker-compose exec app npm run build
 ```
 
-This command will:
-1. Start all Docker containers
-2. Install PHP dependencies
-3. Generate application key
-4. Run database migrations
-5. Install development tools (Laravel Pint, PHPStan, etc.)
-6. Install frontend dependencies
-
-## Development Setup
-
-If you prefer a step-by-step approach:
-
-1. Clone the repository:
-   ```bash
-   git clone https://your-repository-url.git
-   cd solar-system-mining
-   ```
-
-2. Create environment file:
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Build and start the Docker containers:
-   ```bash
-   make up
-   # or without Make
-   docker-compose up -d
-   ```
-
-4. Install PHP dependencies:
-   ```bash
-   make composer@install
-   # or without Make
-   docker-compose exec app composer install
-   ```
-
-5. Generate application key:
-   ```bash
-   make artisan@key
-   # or without Make
-   docker-compose exec app php artisan key:generate
-   ```
-
-6. Run database migrations:
-   ```bash
-   make artisan@migrate
-   # or without Make
-   docker-compose exec app php artisan migrate
-   ```
-
-7. Install development tools:
-   ```bash
-   make dev@tools
-   ```
-
-8. Initialize configuration files for dev tools:
-   ```bash
-   make dev@init
-   ```
-
-9. Install frontend dependencies (if needed):
-   ```bash
-   make npm@install
-   # or without Make
-   docker-compose exec app npm install
-   ```
-
-Your application should now be running at http://localhost (or the port specified in your .env file).
-
-## Docker Environment
-
-The Docker environment includes the following services:
-
-- **app**: PHP 8.3 with Laravel application
-- **nginx**: Web server
-- **postgres**: PostgreSQL database
-- **redis**: Redis server for caching and queues
-- **adminer**: Database management tool
-- **kafka**: Kafka message broker
-- **zookeeper**: Required for Kafka
-- **kafka-ui**: UI for Kafka management
-- **mailhog**: For email testing (optional, starts with profile)
-- **queue**: For queue workers (optional, starts with profile)
-- **node**: For dedicated npm tasks (optional, starts with profile)
-
-### Service Access
-
-- **Web application**: http://localhost (or custom port from .env)
-- **Database admin**: http://localhost:8080 (or custom port from .env)
-- **Kafka UI**: http://localhost:8081 (or custom port from .env)
-- **MailHog**: http://localhost:8025 (when started with profile)
-
-## Common Commands
-
-The Makefile provides shortcuts for common tasks:
-
-### Docker Management
+### 4. Local Domain Configuration (Optional)
+To use `solar-system-mining.localhost` instead of `localhost:8082`:
 
 ```bash
-# Start the containers
-make up
+# Add to hosts file
+# Linux/macOS
+echo "127.0.0.1 solar-system-mining.localhost" | sudo tee -a /etc/hosts
 
-# Stop the containers
-make down
-
-# Restart the containers
-make restart
-
-# View logs
-make logs
-# For a specific service
-make logs s=app
+# Windows (as Administrator)
+echo "127.0.0.1 solar-system-mining.localhost" >> C:\Windows\System32\drivers\etc\hosts
 ```
 
-### Laravel Artisan Commands
+## 🌐 Access URLs
 
+### Main Application
+| Service | URL | Description |
+|---------|-----|-------------|
+| **Website** | `http://solar-system-mining.localhost:8082`<br/>or `http://localhost:8082` | Main application |
+| **Login** | `/login` | User authentication |
+| **Dashboard** | `/dashboard` | Authenticated user interface |
+| **Health Check** | `/up` | Application status check |
+
+### Development Services
+| Service | URL | Credentials | Description |
+|---------|-----|-------------|-------------|
+| **Adminer** | `http://localhost:8080` | See Database section | PostgreSQL management interface |
+| **Kafka UI** | `http://localhost:8085` | - | Kafka management interface |
+| **MailHog** | `http://localhost:8025` | - | Email capture (optional) |
+
+### Direct Connections
+| Service | Host:Port | Credentials |
+|---------|-----------|-------------|
+| **PostgreSQL** | `localhost:5433` | `postgres` / `secret` / `laravel` |
+| **Redis** | `localhost:6380` | No password |
+| **Kafka** | `localhost:9093` | - |
+
+## 🗄️ Database
+
+### Connection via Adminer
+1. Access `http://localhost:8080`
+2. **System**: PostgreSQL
+3. **Server**: `postgres`
+4. **Username**: `postgres`
+5. **Password**: `secret`
+6. **Database**: `laravel`
+
+### Direct Connection
 ```bash
-# Run any Artisan command
-make artisan@command args="--option1 --option2"
+# From host
+psql -h localhost -p 5433 -U postgres -d laravel
 
-# Run migrations
-make artisan@migrate
-
-# Fresh migrations
-make artisan@fresh
-
-# Generate controller
-make artisan@make t=controller n=UserController
-
-# List routes
-make artisan@route
-
-# Clear caches
-make artisan@clear
-
-# Enter Tinker
-make artisan@tinker
+# From Docker
+docker-compose exec postgres psql -U postgres -d laravel
 ```
 
-### Composer Commands
+## ⚡ Development Commands
 
+### Makefile (Shortcuts)
 ```bash
-# Install dependencies
-make composer@install
+# Container management
+make up                    # Start environment
+make down                  # Stop environment
+make restart               # Restart all services
+make bootstrap             # Complete installation (first time)
 
-# Update dependencies
-make composer@update
+# Laravel
+make artisan@migrate       # Run migrations
+make artisan@tinker        # Laravel console
+make artisan@make t=controller n=UserController  # Generate files
 
-# Add a package
-make composer@require p=vendor/package-name
+# Testing & Quality
+make code@test             # Run tests
+make code@coverage         # Tests with coverage
+make code@check            # Quality checks (Pint + PHPStan)
+make code@pint             # Check code style
+make code@pint-fix         # Fix code style automatically
 
-# Add a dev package
-make composer@require-dev p=vendor/package-name
+# Dependencies
+make composer@install      # Install PHP dependencies
+make composer@require p=vendor/package  # Add PHP package
+make npm@install           # Install JS dependencies
+make npm@dev              # Compile assets (development)
+make npm@build            # Compile assets (production)
+
+# Utilities
+make bash                  # Access app container shell
+make logs                  # View all logs
+make fresh                 # Complete reset (DB + cache)
 ```
 
-### NPM Commands
-
+### Docker Compose Direct
 ```bash
-# Install dependencies
-make npm@install
+# Services
+docker-compose up -d              # Start in background
+docker-compose down               # Stop and remove
+docker-compose restart [service] # Restart specific service
+docker-compose logs -f [service] # Follow logs
 
-# Run development build
+# Laravel Artisan
+docker-compose exec app php artisan migrate
+docker-compose exec app php artisan tinker
+docker-compose exec app php artisan cache:clear
+
+# Composer
+docker-compose exec app composer install
+docker-compose exec app composer require vendor/package
+
+# NPM
+docker-compose exec app npm install
+docker-compose exec app npm run dev
+docker-compose exec app npm run build
+
+# Optional Services
+docker-compose --profile mailhog up -d    # Enable MailHog
+docker-compose --profile queue up -d      # Enable Queue Worker
+```
+
+## 🔧 Development
+
+### Project Structure
+```
+solar-system-mining/
+├── app/                    # Laravel code
+├── resources/              # Views, CSS, JS
+├── database/              # Migrations, Seeders
+├── docker/                # Docker configuration
+├── public/                # Public assets
+├── routes/                # Web/API routes
+├── tests/                 # Automated tests
+├── docker-compose.yml     # Services configuration
+├── Dockerfile            # Application image
+├── Makefile              # Command shortcuts
+└── .env                  # Environment configuration
+```
+
+### Development Workflow
+1. **Start environment**: `make up`
+2. **Modify code** in your preferred editor
+3. **Run tests**: `make code@test`
+4. **Check quality**: `make code@check`
+5. **Compile assets**: `make npm@dev` (or `npm@build` for production)
+
+### Hot Reload & Watch
+```bash
+# Assets in watch mode
 make npm@dev
 
-# Run production build
-make npm@build
-
-# Watch for changes
-make npm@watch
+# Tests in watch mode
+make code@test args="--filter=MyTest"
 ```
 
-### Database Access
+## 🧪 Testing
 
 ```bash
-# Access PostgreSQL shell
-make db-shell
-
-# Access Redis shell
-make redis-shell
-```
-
-## Adding Dependencies
-
-### PHP Dependencies
-
-```bash
-# Add a production dependency
-make composer@require p=package-name
-
-# Add a development dependency
-make composer@require-dev p=package-name
-```
-
-### JavaScript Dependencies
-
-```bash
-# Add a production dependency
-make npm@install
-docker-compose exec app npm install package-name --save
-
-# Add a development dependency
-make npm@install
-docker-compose exec app npm install package-name --save-dev
-```
-
-## Development Tools
-
-The project includes several development tools installed locally in the project's `vendor/bin` directory:
-
-- **Laravel Pint**: PHP code style fixer
-- **PHPStan**: Static analysis tool
-- **Rector**: Automated code refactoring tool
-- **PHP_CodeSniffer**: Detects violations of coding standards
-- **PHP-CS-Fixer**: Fixes PHP coding standards issues
-
-Install all development tools:
-
-```bash
-make dev@tools
-```
-
-Initialize configuration files for these tools:
-
-```bash
-make dev@init
-```
-
-## Running Tests
-
-```bash
-# Run all tests
+# All tests
 make code@test
 
-# Run specific test
-make code@test args="--filter=TestClassName"
+# Specific tests
+make code@test args="--filter=UserTest"
+make code@test args="tests/Feature/Auth"
 
-# Run tests with coverage
+# With coverage
 make code@coverage
 ```
 
-## Code Quality Tools
+## 📊 Message Broker (Kafka)
 
-The project includes several code quality tools that can be run through the Makefile:
+### Kafka UI Interface
+Access `http://localhost:8085` to:
+- Visualize topics
+- Monitor messages
+- Manage consumers
+- Analyze performance
 
+### Kafka Configuration
 ```bash
-# Check code style with Laravel Pint
-make code@pint
+# Bootstrap servers for your applications
+KAFKA_BROKERS=localhost:9093
 
-# Fix code style with Laravel Pint
-make code@pint-fix
-
-# Static analysis with PHPStan
-make code@stan
-
-# Code refactoring suggestions with Rector
-make code@rector-dry
-
-# Apply Rector suggestions
-make code@rector
-
-# Run all code quality checks
-make code@check
+# Default topics (auto-created)
+# - user.created
+# - mining.operations
+# - system.alerts
 ```
 
-## CI/CD Pipeline
+## 🚀 Deployment
 
-The project includes configuration for a CI/CD pipeline that:
+### Production Environment
+1. **Configure environment variables**
+2. **Modify `docker-compose.prod.yml`** (if available)
+3. **Use HTTPS** with a reverse proxy (Nginx, Traefik)
+4. **Secure access** to administration services
 
-1. Runs all tests and code quality checks
-2. Builds Docker images for production
-3. Deploys to the appropriate environment based on the branch
-
-See the CI/CD configuration in the `.github/workflows` or `.gitlab-ci.yml` file for details.
-
-## Production Deployment
-
-### Preparing for Production
-
-1. Build production Docker image:
-   ```bash
-   docker build -t solar-system-mining:production --target production .
-   ```
-
-2. Configure production environment variables:
-   ```bash
-   # Ensure these are set for production
-   APP_ENV=production
-   APP_DEBUG=false
-   APP_USER=1000:1000  # Run as non-root user
-   FIX_PERMISSIONS=true
-   ```
-
-3. Optimize the application:
-   ```bash
-   docker-compose exec app php artisan optimize
-   docker-compose exec app php artisan route:cache
-   docker-compose exec app php artisan view:cache
-   docker-compose exec app php artisan config:cache
-   ```
-
-### Deployment Options
-
-#### Using Docker Compose
-
-For simple deployments, you can use Docker Compose in production:
-
+### Production Variables
 ```bash
-# Start production environment
-APP_ENV=production APP_USER=1000:1000 docker-compose up -d
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-domain.com
+
+# Use strong passwords
+DB_PASSWORD=your-secure-password
+REDIS_PASSWORD=your-redis-password
+
+# Secure Kafka configuration
+KAFKA_SECURITY_PROTOCOL=SASL_SSL
 ```
 
-#### Using Kubernetes
+## 🔒 Security
 
-For more robust deployments, consider using Kubernetes:
+⚠️ **Important**: This configuration is intended for local development.
 
-1. Ensure your Kubernetes cluster is configured
-2. Apply Kubernetes configuration:
-   ```bash
-   kubectl apply -f kubernetes/
-   ```
+**For production**:
+- Change all default passwords
+- Use HTTPS
+- Restrict access to administration services
+- Configure isolated Docker networks
+- Enable Kafka authentication
 
-#### Using Docker Swarm
+## 🐛 Troubleshooting
 
-For mid-sized deployments, Docker Swarm can be a good option:
+### Common Issues
 
+#### Port already in use
 ```bash
-# Initialize swarm if not already done
-docker swarm init
+# Check occupied ports
+netstat -tulpn | grep :8082
 
-# Deploy stack
-docker stack deploy -c docker-compose.prod.yml solar-system-mining
+# Modify ports in .env
+NGINX_PORT=8083
 ```
 
-## Environment Variables
-
-Key environment variables to configure:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NGINX_PORT` | Port for web access | 80 |
-| `DB_CONNECTION` | Database driver | pgsql |
-| `DB_HOST` | Database hostname | postgres |
-| `DB_PORT` | Database port | 5432 |
-| `DB_DATABASE` | Database name | laravel |
-| `DB_USERNAME` | Database username | postgres |
-| `DB_PASSWORD` | Database password | secret |
-| `APP_USER` | User to run containers | root (dev), 1000:1000 (prod) |
-| `FIX_PERMISSIONS` | Run permission fixes | false (dev), true (prod) |
-
-See `.env.example` for a complete list.
-
-## Troubleshooting
-
-### Permission Issues
-
-If you encounter permission issues with storage or cache directories:
-
+#### Permissions (Linux/macOS)
 ```bash
-# Enable permission fixing
-FIX_PERMISSIONS=true make restart
+# Fix permissions
+sudo chown -R $USER:$USER .
 ```
 
-### Database Connection Issues
-
-If unable to connect to the database:
-
-1. Check if the database container is running:
-   ```bash
-   docker-compose ps postgres
-   ```
-
-2. Verify connection details in `.env`
-
-3. Try connecting with Adminer at http://localhost:8080
-
-### Container Build Issues
-
-If having issues with container builds:
-
+#### Laravel encryption key
 ```bash
-# Build the image separately first
-docker build -t solar-system-mining/app:dev -f Dockerfile --target development .
-
-# Then start the services
-docker-compose up -d
+# Regenerate APP_KEY
+docker-compose exec app php artisan key:generate
 ```
 
-### PHP Extension or Library Problems
-
-If you encounter issues with PHP extensions or libraries:
-
+#### Corrupted cache
 ```bash
-# Access the container
-make bash
-
-# Check PHP extensions
-php -m
-
-# Check PHP version and settings
-php -i
+# Clean all caches
+make fresh
+# or
+docker-compose exec app php artisan cache:clear
+docker-compose exec app php artisan config:clear
+docker-compose exec app php artisan view:clear
 ```
+
+### Debug Logs
+```bash
+# All services logs
+docker-compose logs
+
+# Specific service logs
+docker-compose logs app
+docker-compose logs nginx
+docker-compose logs postgres
+
+# Laravel logs
+docker-compose exec app tail -f storage/logs/laravel.log
+```
+
+## 🤝 Contributing
+
+1. **Fork** the project
+2. **Create** a branch for your feature
+3. **Develop** following project standards
+4. **Test** with `make code@test` and `make code@check`
+5. **Submit** a Pull Request
+
+### Code Standards
+- **PSR-12** for PHP
+- **ESLint** for JavaScript
+- **Unit tests** required for new features
+- **API documentation** required
+
+## 📞 Support
+
+- **Issues**: Use GitHub issue system
+- **Documentation**: See `/docs` folder (if available)
+- **Wiki**: Check project wiki
 
 ---
 
-## License
+**Built with ❤️ for space exploration**
 
-[License information here]
-
-## Contributing
-
-[Contribution guidelines here]
+*Last updated: July 2, 2025*
