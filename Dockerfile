@@ -1,7 +1,7 @@
 # Utilisez l'image officielle PHP 8.2 FPM
 FROM php:8.2-fpm as base
 
-# Arguments must be at the very top
+# Arguments au début (personnalisables via --build-arg)
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 
@@ -18,11 +18,12 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Création de l'utilisateur "laravel" avec l'UID/GID de l'hôte
 RUN groupadd -g ${GROUP_ID} laravel && \
     useradd -u ${USER_ID} -g laravel -m laravel && \
     install -d -m 0755 -o laravel -g laravel /home/laravel
 
-# Installation des extensions PHP nécessaires
+# Installation des extensions PHP
 RUN docker-php-ext-install \
     pdo_pgsql \
     pgsql \
@@ -36,28 +37,24 @@ RUN docker-php-ext-install \
     exif \
     curl
 
-# Installation de l'extension rdkafka pour Kafka
+# Installation de rdkafka
 RUN pecl install rdkafka && docker-php-ext-enable rdkafka
 
-# Installation de Composer 2
+# Installation de Composer (global, accessible par tous les utilisateurs)
 RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin \
     --filename=composer \
     --2
 
-# Installation des outils de développement PHP (globaux)
+# Installation des outils de développement en tant que "laravel"
+USER laravel
 RUN composer global require phpstan/phpstan rector/rector laravel/pint
+ENV PATH="/home/laravel/.composer/vendor/bin:${PATH}"
 
-# Ajout des binaires Composer au PATH
-ENV PATH="/root/.composer/vendor/bin:${PATH}"
-
-# Configure le répertoire de travail
+# Répertoire de travail et permissions
 WORKDIR /var/www/html
-
-# Transfert ownership au user laravel
+USER root
 RUN chown -R laravel:laravel /var/www/html
-
-# Passe à l'utilisateur non-root
 USER laravel
 
 # Étape de développement avec Node.js
@@ -66,13 +63,6 @@ USER root
 RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
     && apt-get update \
     && apt-get install -y nodejs \
-    && npm install -g npm@latest
-
-FROM base as development
-COPY --from=node-builder /usr/local/bin/node /usr/local/bin/
-COPY --from=node-builder /usr/local/bin/npm /usr/local/bin/
-
-# Revenir à l'utilisateur non-privilégié
+    && npm install -g npm@latest \
+    && chown -R laravel:laravel /var/www/html
 USER laravel
-
-
