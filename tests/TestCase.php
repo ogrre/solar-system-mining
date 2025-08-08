@@ -11,11 +11,11 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
     use RefreshDatabase;
     use WithFaker;
-    
+
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Disable CSRF verification for tests - try different approaches
         $this->withoutMiddleware([
             \Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class,
