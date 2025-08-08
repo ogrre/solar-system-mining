@@ -1,0 +1,17 @@
+# Branch Protection Configuration
+# This file documents the required branch protection settings
+# Configure these manually in GitHub Settings > Branches
+
+protection_rules:
+  main:
+    required_status_checks:
+      - "laravel-tests"
+      - "SonarCloud Code Analysis" 
+    required_pull_request_reviews: 1
+    dismiss_stale_reviews: true
+    require_code_owner_reviews: false
+    restrictions: null
+    enforce_admins: true
+    required_linear_history: true
+    allow_force_pushes: false
+    allow_deletions: false
