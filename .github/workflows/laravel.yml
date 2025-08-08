@@ -9,6 +9,14 @@ on:
 jobs:
   laravel-tests:
     runs-on: ubuntu-latest
+    
+    env:
+      DB_CONNECTION: pgsql
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_DATABASE: laravel
+      DB_USERNAME: laravel
+      DB_PASSWORD: secret
 
     services:
       postgres:
@@ -57,17 +65,13 @@ jobs:
     - name: Clear Config Cache
       run: php artisan config:clear
 
+    - name: Set APP_KEY environment variable
+      run: echo "APP_KEY=$(php artisan --no-ansi key:generate --show)" >> $GITHUB_ENV
+
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
 
     - name: Create Database
-      env:
-        DB_CONNECTION: pgsql
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_DATABASE: laravel
-        DB_USERNAME: laravel
-        DB_PASSWORD: secret
       run: php artisan migrate --force
 
     - name: Run Code Style Check
@@ -80,11 +84,4 @@ jobs:
       run: ./vendor/bin/rector --dry-run --config=rector.php
 
     - name: Run Tests
-      env:
-        DB_CONNECTION: pgsql
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_DATABASE: laravel
-        DB_USERNAME: laravel
-        DB_PASSWORD: secret
       run: php artisan test
