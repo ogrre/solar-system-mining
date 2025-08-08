@@ -22,3 +22,8 @@ yarn-error.log
 /.vscode
 /.zed
 cookies.txt
+
+# Coverage and analysis files
+coverage.xml
+test-results.xml
+.scannerwork/
