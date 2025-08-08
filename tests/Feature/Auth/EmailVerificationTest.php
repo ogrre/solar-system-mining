@@ -33,7 +33,7 @@ class EmailVerificationTest extends TestCase
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1($user->email)]
+            ['id' => $user->getKey(), 'hash' => sha1($user->getEmailForVerification())] // @sonar-ignore-line - Laravel standard for email verification URLs
         );
 
         $response = $this->actingAs($user)->get($verificationUrl);
@@ -51,7 +51,7 @@ class EmailVerificationTest extends TestCase
         $verificationUrl = URL::temporarySignedRoute(
             'verification.verify',
             now()->addMinutes(60),
-            ['id' => $user->id, 'hash' => sha1('wrong-email')]
+            ['id' => $user->getKey(), 'hash' => sha1('wrong-email@example.com')] // @sonar-ignore-line - Laravel standard for email verification URLs
         );
 
         $this->actingAs($user)->get($verificationUrl);
