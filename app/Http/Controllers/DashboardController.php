@@ -13,9 +13,9 @@ class DashboardController extends Controller
 
         $activeGames = $user->games()
             ->wherePivot('status', 'joined')
-            ->whereIn('status', ['waiting', 'active', 'paused'])
+            ->whereIn('games.status', ['waiting', 'active', 'paused'])
             ->with(['solarSystem', 'host'])
-            ->orderBy('last_activity_at', 'desc')
+            ->orderBy('games.last_activity_at', 'desc')
             ->get();
 
         $pendingInvitations = $user->pendingInvitations()
@@ -24,9 +24,9 @@ class DashboardController extends Controller
             ->get();
 
         $hostedGames = $user->hostedGames()
-            ->whereIn('status', ['waiting', 'active', 'paused'])
+            ->whereIn('games.status', ['waiting', 'active', 'paused'])
             ->with('solarSystem')
-            ->orderBy('last_activity_at', 'desc')
+            ->orderBy('games.last_activity_at', 'desc')
             ->get();
 
         return view('dashboard', compact('activeGames', 'pendingInvitations', 'hostedGames'));
