@@ -25,11 +25,19 @@ The following files configure SonarCloud analysis:
 
 ### Action Deprecated Warning  
 **Problem**: Using deprecated `sonarcloud-github-action`
-**Solution**: Updated to use `sonarqube-scan-action@v5.0.0`
+**Solution**: ✅ Updated to use `sonarqube-scan-action@v5.0.0`
 
 ### Coverage Not Found
 **Problem**: SonarCloud can't find coverage.xml
-**Solution**: Tests run with `--coverage-clover coverage.xml` before SonarCloud scan
+**Solution**: ✅ Tests run with `--coverage-clover coverage.xml` before SonarCloud scan
+
+### Missing test-results.xml File
+**Problem**: SonarCloud can't import PHPUnit test results
+**Solution**: ✅ Added `--log-junit test-results.xml` generation alongside coverage
+
+### PostgreSQL Role Error in CI
+**Problem**: "FATAL: role 'root' does not exist" during tests
+**Solution**: ✅ Added explicit PostgreSQL environment variables for test execution
 
 ## Quality Gates
 The project is configured to:
