@@ -17,6 +17,7 @@ jobs:
       DB_DATABASE: laravel
       DB_USERNAME: laravel
       DB_PASSWORD: secret
+      APP_ENV: testing
 
     services:
       postgres:
@@ -96,7 +97,22 @@ jobs:
       run: ./vendor/bin/rector --dry-run --config=rector.php
 
     - name: Run Tests with Coverage
-      run: php artisan test --coverage-clover coverage.xml
+      run: |
+        php artisan test --coverage-clover coverage.xml
+        ./vendor/bin/phpunit --log-junit test-results.xml
+      env:
+        DB_CONNECTION: pgsql
+        DB_HOST: localhost
+        DB_PORT: 5432
+        DB_DATABASE: laravel
+        DB_USERNAME: laravel
+        DB_PASSWORD: secret
+
+    - name: Verify test reports
+      run: |
+        ls -la coverage.xml test-results.xml
+        echo "Coverage report size: $(wc -c < coverage.xml) bytes"
+        echo "Test results size: $(wc -c < test-results.xml) bytes"
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarqube-scan-action@v5.0.0
