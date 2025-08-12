@@ -22,7 +22,7 @@ class SolarSystemTest extends TestCase
     public function test_guest_redirected_to_login_when_accessing_solar_systems(): void
     {
         $response = $this->get(route('solar-systems.index'));
-        
+
         $response->assertRedirect(route('login'));
     }
 
@@ -83,7 +83,7 @@ class SolarSystemTest extends TestCase
     public function test_solar_system_shows_available_games_count(): void
     {
         $solarSystem = SolarSystem::factory()->create();
-        
+
         $response = $this->actingAs($this->user)->get(route('solar-systems.show', $solarSystem));
 
         $response->assertOk();
@@ -94,7 +94,7 @@ class SolarSystemTest extends TestCase
     public function test_home_page_redirects_to_solar_systems_index(): void
     {
         $response = $this->get('/');
-        
+
         $response->assertRedirect(route('solar-systems.index'));
     }
 }

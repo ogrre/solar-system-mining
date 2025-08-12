@@ -52,7 +52,7 @@ class SolarSystem extends Model
 
     public function getDifficultyColorAttribute(): string
     {
-        return match($this->difficulty) {
+        return match ($this->difficulty) {
             'easy' => 'green',
             'medium' => 'yellow',
             'hard' => 'orange',

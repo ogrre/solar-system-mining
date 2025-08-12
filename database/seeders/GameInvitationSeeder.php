@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GameInvitationSeeder extends Seeder
@@ -17,6 +16,7 @@ class GameInvitationSeeder extends Seeder
 
         if ($games->isEmpty() || $users->isEmpty()) {
             echo "⚠️ No games or users found. Run GameSeeder and UserSeeder first.\n";
+
             return;
         }
 
@@ -51,22 +51,22 @@ class GameInvitationSeeder extends Seeder
                 ->where('status', 'joined')
                 ->pluck('user_id')
                 ->toArray();
-                
+
             $availableUsers = $users->whereNotIn('id', $gamePlayerIds);
-            
+
             if ($availableUsers->isEmpty()) {
                 continue;
             }
 
             // Create 0-3 invitations per game
             $invitationCount = rand(0, 3);
-            
+
             if ($invitationCount > 0) {
                 $selectedUsers = $availableUsers->random(min($invitationCount, $availableUsers->count()));
-                
+
                 foreach ($selectedUsers as $user) {
                     $createdAt = $game->created_at->copy()->addHours(rand(1, 72));
-                    
+
                     // Determine invitation status
                     $statusRand = rand(1, 100);
                     if ($statusRand <= 60) {
@@ -91,7 +91,7 @@ class GameInvitationSeeder extends Seeder
                         'created_at' => $createdAt,
                         'updated_at' => $respondedAt ?: $createdAt,
                     ]);
-                    
+
                     $invitationsCreated++;
                 }
             }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\SolarSystem;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class SolarSystemController extends Controller
@@ -11,10 +10,10 @@ class SolarSystemController extends Controller
     public function index(): View
     {
         $solarSystems = SolarSystem::where('is_active', true)
-            ->withCount(['games as available_games_count' => function ($query) {
+            ->withCount(['games as available_games_count' => function ($query): void {
                 $query->where('status', 'waiting')->where('is_public', true);
             }])
-            ->withCount(['games as total_players_count' => function ($query) {
+            ->withCount(['games as total_players_count' => function ($query): void {
                 $query->whereIn('status', ['active', 'paused']);
             }])
             ->get();
@@ -25,12 +24,12 @@ class SolarSystemController extends Controller
     public function show(SolarSystem $solarSystem): View
     {
         $solarSystem->loadCount([
-            'games as available_games_count' => function ($query) {
+            'games as available_games_count' => function ($query): void {
                 $query->where('status', 'waiting')->where('is_public', true);
             },
-            'games as active_games_count' => function ($query) {
+            'games as active_games_count' => function ($query): void {
                 $query->whereIn('status', ['active', 'paused']);
-            }
+            },
         ]);
 
         $availableGames = $solarSystem->games()

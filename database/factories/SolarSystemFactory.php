@@ -28,18 +28,18 @@ class SolarSystemFactory extends Factory
         return [
             'name' => fake()->unique()->randomElement([
                 'Alpha Centauri', 'Kepler-442', 'Wolf 1061', 'Proxima Centauri',
-                'Gliese 667C', 'TRAPPIST-1', 'Ross 128', 'LHS 1140'
+                'Gliese 667C', 'TRAPPIST-1', 'Ross 128', 'LHS 1140',
             ]),
             'description' => fake()->sentence(12),
             'difficulty' => $difficulty,
             'available_resources' => fake()->randomElements($resources[$difficulty], fake()->numberBetween(2, min(4, count($resources[$difficulty])))),
-            'max_players' => match($difficulty) {
+            'max_players' => match ($difficulty) {
                 'easy' => 4,
                 'medium' => fake()->numberBetween(4, 6),
                 'hard' => fake()->numberBetween(6, 8),
                 'extreme' => fake()->numberBetween(8, 10),
             },
-            'min_players' => match($difficulty) {
+            'min_players' => match ($difficulty) {
                 'easy' => 1,
                 'medium' => 2,
                 'hard' => 3,

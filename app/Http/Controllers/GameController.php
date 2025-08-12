@@ -46,7 +46,7 @@ class GameController extends Controller
     public function show(Game $game): View
     {
         $game->load(['solarSystem', 'host', 'activePlayers.user']);
-        
+
         return view('games.show', compact('game'));
     }
 
@@ -58,11 +58,11 @@ class GameController extends Controller
 
         $game = Game::where('join_code', $validated['join_code'])->first();
 
-        if (!$game) {
+        if (! $game) {
             return back()->withErrors(['join_code' => 'Game not found with this code.']);
         }
 
-        if (!$game->canJoin(auth()->user())) {
+        if (! $game->canJoin(auth()->user())) {
             return back()->withErrors(['join_code' => 'Cannot join this game.']);
         }
 
@@ -81,7 +81,7 @@ class GameController extends Controller
 
     public function joinPublic(Game $game): RedirectResponse
     {
-        if (!$game->canJoin(auth()->user())) {
+        if (! $game->canJoin(auth()->user())) {
             return back()->withErrors(['error' => 'Cannot join this game.']);
         }
 
@@ -105,7 +105,7 @@ class GameController extends Controller
             ->where('status', 'joined')
             ->first();
 
-        if (!$gamePlayer) {
+        if (! $gamePlayer) {
             return back()->withErrors(['error' => 'You are not in this game.']);
         }
 

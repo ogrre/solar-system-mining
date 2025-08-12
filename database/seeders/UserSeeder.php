@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -65,6 +64,6 @@ class UserSeeder extends Seeder
         // Additional random users for testing
         \App\Models\User::factory(10)->create();
 
-        echo "✅ Created " . \App\Models\User::count() . " users\n";
+        echo '✅ Created '.\App\Models\User::count()." users\n";
     }
 }

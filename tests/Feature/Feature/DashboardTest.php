@@ -3,8 +3,6 @@
 namespace Tests\Feature\Feature;
 
 use App\Models\Game;
-use App\Models\GameInvitation;
-use App\Models\GamePlayer;
 use App\Models\SolarSystem;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -25,7 +23,7 @@ class DashboardTest extends TestCase
     public function test_guest_cannot_access_dashboard(): void
     {
         $response = $this->get(route('dashboard'));
-        
+
         $response->assertRedirect(route('login'));
     }
 

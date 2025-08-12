@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GameSeeder extends Seeder
@@ -17,6 +16,7 @@ class GameSeeder extends Seeder
 
         if ($solarSystems->isEmpty() || $users->isEmpty()) {
             echo "⚠️ No solar systems or users found. Run SolarSystemSeeder and UserSeeder first.\n";
+
             return;
         }
 
@@ -71,12 +71,12 @@ class GameSeeder extends Seeder
         foreach ($solarSystems as $system) {
             // Create 2-4 games per solar system
             $gameCount = rand(2, 4);
-            
+
             for ($i = 0; $i < $gameCount; $i++) {
                 $host = $users->random();
                 $gameName = $gameNames[array_rand($gameNames)];
                 $description = $descriptions[array_rand($descriptions)];
-                
+
                 // Determine game status based on probability
                 $statusRand = rand(1, 100);
                 if ($statusRand <= 40) {
@@ -104,13 +104,13 @@ class GameSeeder extends Seeder
 
                 // Set timestamps based on status
                 $createdAt = now()->subDays(rand(1, 30));
-                $startedAt = in_array($status, ['active', 'paused', 'completed', 'abandoned']) 
-                    ? $createdAt->copy()->addHours(rand(1, 48)) 
+                $startedAt = in_array($status, ['active', 'paused', 'completed', 'abandoned'])
+                    ? $createdAt->copy()->addHours(rand(1, 48))
                     : null;
-                $endedAt = in_array($status, ['completed', 'abandoned']) 
-                    ? $startedAt?->copy()->addDays(rand(1, 14)) 
+                $endedAt = in_array($status, ['completed', 'abandoned'])
+                    ? $startedAt?->copy()->addDays(rand(1, 14))
                     : null;
-                $lastActivity = match($status) {
+                $lastActivity = match ($status) {
                     'waiting' => $createdAt->copy()->addHours(rand(1, 24)),
                     'active' => now()->subMinutes(rand(5, 1440)),
                     'paused' => now()->subHours(rand(2, 72)),
@@ -150,6 +150,6 @@ class GameSeeder extends Seeder
             }
         }
 
-        echo "✅ Created {$gamesCreated} games across " . $solarSystems->count() . " solar systems\n";
+        echo "✅ Created {$gamesCreated} games across ".$solarSystems->count()." solar systems\n";
     }
 }
