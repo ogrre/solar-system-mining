@@ -14,6 +14,7 @@ class GameManagementTest extends TestCase
     use RefreshDatabase;
 
     protected User $user;
+
     protected SolarSystem $solarSystem;
 
     protected function setUp(): void
@@ -55,7 +56,7 @@ class GameManagementTest extends TestCase
         ]);
 
         $game = Game::where('name', 'Test Mining Operation')->first();
-        
+
         $this->assertDatabaseHas('game_players', [
             'game_id' => $game->id,
             'user_id' => $this->user->id,
@@ -162,7 +163,7 @@ class GameManagementTest extends TestCase
             ->post(route('games.join-public', $game));
 
         $response->assertSessionHasErrors(['error']);
-        
+
         $this->assertDatabaseMissing('game_players', [
             'game_id' => $game->id,
             'user_id' => $this->user->id,

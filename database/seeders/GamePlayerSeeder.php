@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class GamePlayerSeeder extends Seeder
@@ -17,6 +16,7 @@ class GamePlayerSeeder extends Seeder
 
         if ($games->isEmpty() || $users->isEmpty()) {
             echo "⚠️ No games or users found. Run GameSeeder and UserSeeder first.\n";
+
             return;
         }
 
@@ -25,7 +25,7 @@ class GamePlayerSeeder extends Seeder
         foreach ($games as $game) {
             // Always add the host as the first player
             $hostJoinedAt = $game->created_at->copy()->addMinutes(rand(1, 30));
-            
+
             \App\Models\GamePlayer::create([
                 'game_id' => $game->id,
                 'user_id' => $game->host_user_id,
@@ -45,10 +45,10 @@ class GamePlayerSeeder extends Seeder
             // Add additional players up to current_players count
             $additionalPlayers = $game->current_players - 1;
             $availableUsers = $users->where('id', '!=', $game->host_user_id);
-            
+
             if ($additionalPlayers > 0 && $availableUsers->count() > 0) {
                 $selectedUsers = $availableUsers->random(min($additionalPlayers, $availableUsers->count()));
-                
+
                 foreach ($selectedUsers as $user) {
                     $joinedAt = $hostJoinedAt->copy()->addHours(rand(1, 48));
                     $status = 'joined';
@@ -78,7 +78,7 @@ class GamePlayerSeeder extends Seeder
                                 'Need credits',
                                 'Recommended by friend',
                                 'Training opportunity',
-                                'Regular team member'
+                                'Regular team member',
                             ])->random(),
                         ],
                     ]);
@@ -87,6 +87,6 @@ class GamePlayerSeeder extends Seeder
             }
         }
 
-        echo "✅ Created {$playersCreated} game players across " . $games->count() . " games\n";
+        echo "✅ Created {$playersCreated} game players across ".$games->count()." games\n";
     }
 }

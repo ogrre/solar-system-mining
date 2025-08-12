@@ -19,7 +19,7 @@ class GameFactory extends Factory
         return [
             'solar_system_id' => \App\Models\SolarSystem::factory(),
             'host_user_id' => \App\Models\User::factory(),
-            'name' => fake()->words(3, true) . ' Mining Operation',
+            'name' => fake()->words(3, true).' Mining Operation',
             'description' => fake()->sentence(8),
             'status' => fake()->randomElement(['waiting', 'active', 'paused']),
             'current_players' => fake()->numberBetween(1, 4),

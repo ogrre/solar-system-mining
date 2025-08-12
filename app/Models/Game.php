@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Game extends Model
@@ -44,7 +44,7 @@ class Game extends Model
     {
         parent::boot();
 
-        static::creating(function ($game) {
+        static::creating(function ($game): void {
             if (empty($game->join_code)) {
                 $game->join_code = strtoupper(Str::random(8));
             }
@@ -102,7 +102,7 @@ class Game extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'waiting' => 'blue',
             'active' => 'green',
             'paused' => 'yellow',
