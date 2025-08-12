@@ -5,6 +5,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -73,5 +75,44 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function hostedGames(): HasMany
+    {
+        return $this->hasMany(Game::class, 'host_user_id');
+    }
+
+    public function gamePlayers(): HasMany
+    {
+        return $this->hasMany(GamePlayer::class);
+    }
+
+    public function games(): BelongsToMany
+    {
+        return $this->belongsToMany(Game::class, 'game_players')
+            ->withPivot(['status', 'player_data', 'joined_at', 'left_at'])
+            ->withTimestamps();
+    }
+
+    public function activeGames(): BelongsToMany
+    {
+        return $this->games()->wherePivot('status', 'joined');
+    }
+
+    public function sentInvitations(): HasMany
+    {
+        return $this->hasMany(GameInvitation::class, 'inviter_user_id');
+    }
+
+    public function receivedInvitations(): HasMany
+    {
+        return $this->hasMany(GameInvitation::class, 'invited_user_id');
+    }
+
+    public function pendingInvitations(): HasMany
+    {
+        return $this->receivedInvitations()
+            ->where('status', 'pending')
+            ->where('expires_at', '>', now());
     }
 }
