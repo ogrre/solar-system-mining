@@ -138,5 +138,5 @@ docker-compose exec postgres psql -U postgres -d laravel
 
 ---
 
-**Dernière mise à jour** : 2 juillet 2025  
+**Dernière mise à jour** : 12 août 2025  
 **Version** : Solar System Mining v1.0

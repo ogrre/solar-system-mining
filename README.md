@@ -256,6 +256,45 @@ make code@test args="tests/Feature/Auth"
 make code@coverage
 ```
 
+## 🚀 CI/CD & Quality Control
+
+### GitHub Actions Workflow
+The project uses GitHub Actions for continuous integration with the following stages:
+- **Code Quality**: Laravel Pint (PSR-12), PHPStan (level 8), Rector
+- **Testing**: PHPUnit with coverage reports
+- **SonarCloud**: Code quality analysis and quality gate enforcement
+
+### SonarCloud Integration
+- **Quality Gate**: Enforced on all pull requests
+- **Coverage Reports**: Automatically generated (coverage.xml + test-results.xml)
+- **Code Smells**: Detected and reported
+- **Security Vulnerabilities**: Scanned and flagged
+- **Configuration**: See `docs/SONARCLOUD_SETUP.md` for setup details
+
+### Quality Tools
+```bash
+# Run all quality checks
+make code@check
+
+# Individual tools
+make code@pint          # Check code style
+make code@pint-fix      # Fix code style issues
+make code@stan          # Static analysis (PHPStan)
+make code@rector        # Check for code improvements
+```
+
+### Pre-commit Requirements
+Before pushing changes, ensure:
+1. ✅ All tests pass (`make code@test`)
+2. ✅ Code style is compliant (`make code@pint`)
+3. ✅ Static analysis passes (`make code@stan`)
+4. ✅ No Rector suggestions (`make code@rector`)
+
+### Monitoring & Observability
+- **Error Tracking**: Sentry integration for production error monitoring
+- **Feature Flags**: ylsideas/feature-flags package for controlled feature rollouts
+- **Logging**: Laravel's built-in logging with configurable drivers
+
 ## 📊 Message Broker (Kafka)
 
 ### Kafka UI Interface
@@ -382,4 +421,4 @@ docker-compose exec app tail -f storage/logs/laravel.log
 
 **Built with ❤️ for space exploration**
 
-*Last updated: July 2, 2025*
+*Last updated: August 12, 2025*
