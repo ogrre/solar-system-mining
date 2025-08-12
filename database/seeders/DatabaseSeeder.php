@@ -13,15 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        echo "🚀 Starting database seeding...\n\n";
 
         $this->call([
             SolarSystemSeeder::class,
+            UserSeeder::class,
+            GameSeeder::class,
+            GamePlayerSeeder::class,
+            GameInvitationSeeder::class,
         ]);
+
+        echo "\n🎉 Database seeding completed successfully!\n";
     }
 }

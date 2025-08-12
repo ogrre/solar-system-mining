@@ -42,6 +42,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -114,5 +115,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->receivedInvitations()
             ->where('status', 'pending')
             ->where('expires_at', '>', now());
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isUser(): bool
+    {
+        return $this->role === 'user';
     }
 }
