@@ -38,6 +38,8 @@ class Game extends Model
         'is_public' => 'boolean',
     ];
 
+    protected $appends = ['status_color'];
+
     protected static function boot()
     {
         parent::boot();

@@ -27,7 +27,7 @@ class GameController extends Controller
         $game = $solarSystem->games()->create([
             ...$validated,
             'host_user_id' => auth()->id(),
-            'current_players' => 1,
+            'current_players' => 0,
             'last_activity_at' => now(),
         ]);
 

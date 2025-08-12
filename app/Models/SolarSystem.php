@@ -48,6 +48,8 @@ class SolarSystem extends Model
             ->sum('current_players');
     }
 
+    protected $appends = ['difficulty_color'];
+
     public function getDifficultyColorAttribute(): string
     {
         return match($this->difficulty) {
