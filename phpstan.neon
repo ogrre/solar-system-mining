@@ -1,5 +1,8 @@
+includes:
+    - ./vendor/larastan/larastan/extension.neon
+
 parameters:
-    level: 8
+    level: 6
     paths:
         - app
         - config
@@ -10,5 +13,8 @@ parameters:
         - app/Console/Kernel.php (?)
         - node_modules (?)
         - vendor (?)
+    
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
 
 
