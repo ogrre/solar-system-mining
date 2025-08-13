@@ -10,11 +10,8 @@ parameters:
         - routes
         - tests
     excludePaths:
-        - app/Console/Kernel.php (?)
-        - node_modules (?)
-        - vendor (?)
-    
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
+        - app/Console/Kernel.php
+        - node_modules
+        - vendor
 
 
