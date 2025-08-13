@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\SolarSystem;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -27,7 +28,7 @@ class GameController extends Controller
         $game = $solarSystem->games()->create([
             ...$validated,
             'host_user_id' => auth()->id(),
-            'current_players' => 0,
+            'current_players' => 1, // Host is first player
             'last_activity_at' => now(),
         ]);
 
@@ -36,8 +37,6 @@ class GameController extends Controller
             'user_id' => auth()->id(),
             'joined_at' => now(),
         ]);
-
-        $game->increment('current_players');
 
         return redirect()->route('games.show', $game)
             ->with('success', 'Game created successfully!');
@@ -62,7 +61,10 @@ class GameController extends Controller
             return back()->withErrors(['join_code' => 'Game not found with this code.']);
         }
 
-        if (! $game->canJoin(auth()->user())) {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if (! $game->canJoin($user)) {
             return back()->withErrors(['join_code' => 'Cannot join this game.']);
         }
 
@@ -72,8 +74,9 @@ class GameController extends Controller
             'joined_at' => now(),
         ]);
 
-        $game->increment('current_players');
-        $game->update(['last_activity_at' => now()]);
+        $game->current_players += 1;
+        $game->last_activity_at = now();
+        $game->save();
 
         return redirect()->route('games.show', $game)
             ->with('success', 'Successfully joined the game!');
@@ -81,7 +84,10 @@ class GameController extends Controller
 
     public function joinPublic(Game $game): RedirectResponse
     {
-        if (! $game->canJoin(auth()->user())) {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if (! $game->canJoin($user)) {
             return back()->withErrors(['error' => 'Cannot join this game.']);
         }
 
@@ -91,8 +97,9 @@ class GameController extends Controller
             'joined_at' => now(),
         ]);
 
-        $game->increment('current_players');
-        $game->update(['last_activity_at' => now()]);
+        $game->current_players += 1;
+        $game->last_activity_at = now();
+        $game->save();
 
         return redirect()->route('games.show', $game)
             ->with('success', 'Successfully joined the game!');
@@ -114,8 +121,9 @@ class GameController extends Controller
             'left_at' => now(),
         ]);
 
-        $game->decrement('current_players');
-        $game->update(['last_activity_at' => now()]);
+        $game->current_players -= 1;
+        $game->last_activity_at = now();
+        $game->save();
 
         return redirect()->route('dashboard')
             ->with('success', 'Left the game successfully.');
