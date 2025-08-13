@@ -42,7 +42,9 @@ class GameInvitationSeeder extends Seeder
 
         foreach ($games as $game) {
             // Skip games that are already full
-            if ($game->current_players >= $game->solarSystem->max_players) {
+            /** @var \App\Models\SolarSystem $solarSystem */
+            $solarSystem = $game->solarSystem;
+            if ($game->current_players >= $solarSystem->max_players) {
                 continue;
             }
 

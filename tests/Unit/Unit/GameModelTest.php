@@ -161,6 +161,8 @@ class GameModelTest extends TestCase
         ]);
 
         $this->assertCount(1, $game->activePlayers);
-        $this->assertEquals($user1->id, $game->activePlayers->first()->user_id);
+        /** @var \App\Models\GamePlayer $activePlayer */
+        $activePlayer = $game->activePlayers->first();
+        $this->assertEquals($user1->id, $activePlayer->user_id);
     }
 }

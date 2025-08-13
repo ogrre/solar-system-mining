@@ -89,7 +89,9 @@ class Game extends Model
             return false;
         }
 
-        if ($this->current_players >= $this->solarSystem->max_players) {
+        /** @var SolarSystem $solarSystem */
+        $solarSystem = $this->solarSystem;
+        if ($this->current_players >= $solarSystem->max_players) {
             return false;
         }
 
