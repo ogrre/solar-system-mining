@@ -25,6 +25,7 @@ class GameController extends Controller
             'is_public' => 'boolean',
         ]);
 
+        /** @var Game $game */
         $game = $solarSystem->games()->create([
             ...$validated,
             'host_user_id' => auth()->id(),
