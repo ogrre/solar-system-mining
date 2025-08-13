@@ -39,6 +39,7 @@ class GameInvitationSeeder extends Seeder
         ];
 
         $invitationsCreated = 0;
+        $faker = fake();
 
         foreach ($games as $game) {
             // Skip games that are already full
@@ -61,25 +62,25 @@ class GameInvitationSeeder extends Seeder
             }
 
             // Create 0-3 invitations per game
-            $invitationCount = rand(0, 3);
+            $invitationCount = $faker->numberBetween(0, 3);
 
             if ($invitationCount > 0) {
                 $selectedUsers = $availableUsers->random(min($invitationCount, $availableUsers->count()));
 
                 foreach ($selectedUsers as $user) {
-                    $createdAt = $game->created_at->copy()->addHours(rand(1, 72));
+                    $createdAt = $game->created_at->copy()->addHours($faker->numberBetween(1, 72));
 
                     // Determine invitation status
-                    $statusRand = rand(1, 100);
+                    $statusRand = $faker->numberBetween(1, 100);
                     if ($statusRand <= 60) {
                         $status = 'pending';
                         $respondedAt = null;
                     } elseif ($statusRand <= 80) {
                         $status = 'accepted';
-                        $respondedAt = $createdAt->copy()->addHours(rand(1, 24));
+                        $respondedAt = $createdAt->copy()->addHours($faker->numberBetween(1, 24));
                     } else {
                         $status = 'declined';
-                        $respondedAt = $createdAt->copy()->addHours(rand(1, 48));
+                        $respondedAt = $createdAt->copy()->addHours($faker->numberBetween(1, 48));
                     }
 
                     \App\Models\GameInvitation::create([
@@ -87,7 +88,7 @@ class GameInvitationSeeder extends Seeder
                         'inviter_user_id' => $game->host_user_id,
                         'invited_user_id' => $user->id,
                         'status' => $status,
-                        'message' => $invitationMessages[array_rand($invitationMessages)],
+                        'message' => $faker->randomElement($invitationMessages),
                         'responded_at' => $respondedAt,
                         'expires_at' => $createdAt->copy()->addDays(7),
                         'created_at' => $createdAt,

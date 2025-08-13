@@ -67,18 +67,19 @@ class GameSeeder extends Seeder
         ];
 
         $gamesCreated = 0;
+        $faker = fake();
 
         foreach ($solarSystems as $system) {
             // Create 2-4 games per solar system
-            $gameCount = rand(2, 4);
+            $gameCount = $faker->numberBetween(2, 4);
 
             for ($i = 0; $i < $gameCount; $i++) {
                 $host = $users->random();
-                $gameName = $gameNames[array_rand($gameNames)];
-                $description = $descriptions[array_rand($descriptions)];
+                $gameName = $faker->randomElement($gameNames);
+                $description = $faker->randomElement($descriptions);
 
                 // Determine game status based on probability
-                $statusRand = rand(1, 100);
+                $statusRand = $faker->numberBetween(1, 100);
                 if ($statusRand <= 40) {
                     $status = 'waiting';
                 } elseif ($statusRand <= 70) {
@@ -93,27 +94,27 @@ class GameSeeder extends Seeder
 
                 // Set player count based on status
                 if ($status === 'waiting') {
-                    $currentPlayers = rand(1, min(3, $system->max_players - 1));
+                    $currentPlayers = $faker->numberBetween(1, min(3, $system->max_players - 1));
                 } elseif ($status === 'active') {
-                    $currentPlayers = rand(2, $system->max_players);
+                    $currentPlayers = $faker->numberBetween(2, $system->max_players);
                 } elseif ($status === 'paused') {
-                    $currentPlayers = rand(2, $system->max_players);
+                    $currentPlayers = $faker->numberBetween(2, $system->max_players);
                 } else {
-                    $currentPlayers = rand(1, $system->max_players);
+                    $currentPlayers = $faker->numberBetween(1, $system->max_players);
                 }
 
                 // Set timestamps based on status
-                $createdAt = now()->subDays(rand(1, 30));
+                $createdAt = now()->subDays($faker->numberBetween(1, 30));
                 $startedAt = in_array($status, ['active', 'paused', 'completed', 'abandoned'])
-                    ? $createdAt->copy()->addHours(rand(1, 48))
+                    ? $createdAt->copy()->addHours($faker->numberBetween(1, 48))
                     : null;
                 $endedAt = in_array($status, ['completed', 'abandoned'])
-                    ? $startedAt?->copy()->addDays(rand(1, 14))
+                    ? $startedAt?->copy()->addDays($faker->numberBetween(1, 14))
                     : null;
                 $lastActivity = match ($status) {
-                    'waiting' => $createdAt->copy()->addHours(rand(1, 24)),
-                    'active' => now()->subMinutes(rand(5, 1440)),
-                    'paused' => now()->subHours(rand(2, 72)),
+                    'waiting' => $createdAt->copy()->addHours($faker->numberBetween(1, 24)),
+                    'active' => now()->subMinutes($faker->numberBetween(5, 1440)),
+                    'paused' => now()->subHours($faker->numberBetween(2, 72)),
                     'completed', 'abandoned' => $endedAt,
                 };
 
@@ -125,22 +126,22 @@ class GameSeeder extends Seeder
                     'status' => $status,
                     'current_players' => $currentPlayers,
                     'game_settings' => [
-                        'difficulty_modifier' => rand(80, 120) / 100,
-                        'resource_multiplier' => rand(50, 200) / 100,
-                        'time_limit_hours' => rand(24, 168),
-                        'allow_pvp' => rand(0, 1) === 1,
-                        'auto_save_interval' => rand(5, 30),
+                        'difficulty_modifier' => $faker->numberBetween(80, 120) / 100,
+                        'resource_multiplier' => $faker->numberBetween(50, 200) / 100,
+                        'time_limit_hours' => $faker->numberBetween(24, 168),
+                        'allow_pvp' => $faker->boolean(),
+                        'auto_save_interval' => $faker->numberBetween(5, 30),
                     ],
                     'game_state' => $status !== 'waiting' ? [
-                        'total_resources_mined' => rand(1000, 50000),
-                        'active_mining_sites' => rand(1, 5),
-                        'completed_objectives' => rand(0, 10),
-                        'current_phase' => rand(1, 5),
+                        'total_resources_mined' => $faker->numberBetween(1000, 50000),
+                        'active_mining_sites' => $faker->numberBetween(1, 5),
+                        'completed_objectives' => $faker->numberBetween(0, 10),
+                        'current_phase' => $faker->numberBetween(1, 5),
                     ] : null,
                     'started_at' => $startedAt,
                     'ended_at' => $endedAt,
                     'last_activity_at' => $lastActivity,
-                    'is_public' => rand(0, 100) <= 80, // 80% public games
+                    'is_public' => $faker->boolean(80), // 80% public games
                     'join_code' => strtoupper(\Illuminate\Support\Str::random(8)),
                     'created_at' => $createdAt,
                     'updated_at' => $lastActivity,
