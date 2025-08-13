@@ -21,10 +21,11 @@ class GamePlayerSeeder extends Seeder
         }
 
         $playersCreated = 0;
+        $faker = fake();
 
         foreach ($games as $game) {
             // Always add the host as the first player
-            $hostJoinedAt = $game->created_at->copy()->addMinutes(rand(1, 30));
+            $hostJoinedAt = $game->created_at->copy()->addMinutes($faker->numberBetween(1, 30));
 
             \App\Models\GamePlayer::create([
                 'game_id' => $game->id,
@@ -33,11 +34,11 @@ class GamePlayerSeeder extends Seeder
                 'joined_at' => $hostJoinedAt,
                 'player_data' => [
                     'role' => 'host',
-                    'experience_level' => rand(1, 10),
+                    'experience_level' => $faker->numberBetween(1, 10),
                     'specialization' => collect(['Mining', 'Engineering', 'Combat', 'Trading', 'Exploration'])->random(),
-                    'resources_contributed' => rand(0, 5000),
-                    'missions_completed' => rand(0, 20),
-                    'reputation_score' => rand(50, 100),
+                    'resources_contributed' => $faker->numberBetween(0, 5000),
+                    'missions_completed' => $faker->numberBetween(0, 20),
+                    'reputation_score' => $faker->numberBetween(50, 100),
                 ],
             ]);
             $playersCreated++;
@@ -50,14 +51,14 @@ class GamePlayerSeeder extends Seeder
                 $selectedUsers = $availableUsers->random(min($additionalPlayers, $availableUsers->count()));
 
                 foreach ($selectedUsers as $user) {
-                    $joinedAt = $hostJoinedAt->copy()->addHours(rand(1, 48));
+                    $joinedAt = $hostJoinedAt->copy()->addHours($faker->numberBetween(1, 48));
                     $status = 'joined';
                     $leftAt = null;
 
                     // Some players might have left (for completed/abandoned games)
-                    if (in_array($game->status, ['completed', 'abandoned']) && rand(1, 100) <= 20) {
+                    if (in_array($game->status, ['completed', 'abandoned']) && $faker->boolean(20)) {
                         $status = 'left';
-                        $leftAt = $joinedAt->copy()->addDays(rand(1, 10));
+                        $leftAt = $joinedAt->copy()->addDays($faker->numberBetween(1, 10));
                     }
 
                     \App\Models\GamePlayer::create([
@@ -68,11 +69,11 @@ class GamePlayerSeeder extends Seeder
                         'left_at' => $leftAt,
                         'player_data' => [
                             'role' => collect(['miner', 'engineer', 'scout', 'trader', 'security'])->random(),
-                            'experience_level' => rand(1, 10),
+                            'experience_level' => $faker->numberBetween(1, 10),
                             'specialization' => collect(['Asteroid Mining', 'Deep Core Drilling', 'Rare Metals', 'Gas Harvesting', 'Crystal Mining'])->random(),
-                            'resources_contributed' => rand(0, 3000),
-                            'missions_completed' => rand(0, 15),
-                            'reputation_score' => rand(30, 95),
+                            'resources_contributed' => $faker->numberBetween(0, 3000),
+                            'missions_completed' => $faker->numberBetween(0, 15),
+                            'reputation_score' => $faker->numberBetween(30, 95),
                             'join_reason' => collect([
                                 'Looking for adventure',
                                 'Need credits',

@@ -11,7 +11,8 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Admin/Test users
+        // Admin/Test users - Using hardcoded password for development/testing only
+        // In production, use environment variables or secure password generation
         \App\Models\User::firstOrCreate(
             ['email' => 'admin@solar-mining.com'],
             [
