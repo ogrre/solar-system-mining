@@ -1,5 +1,5 @@
-# Utilisez l'image officielle PHP 8.2 FPM
-FROM php:8.2-fpm as base
+# Utilisez l'image officielle PHP 8.5 avec les correctifs de sécurité
+FROM php:8.5.12-fpm as base
 
 # Arguments au début (personnalisables via --build-arg)
 ARG USER_ID=1000
